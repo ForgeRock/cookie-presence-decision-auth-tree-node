@@ -8,9 +8,8 @@ package org.forgerock.openam.auth.nodes;
 
 import java.util.List;
 import java.util.ResourceBundle;
-
+import java.util.*;
 import javax.inject.Inject;
-
 import org.forgerock.guava.common.collect.ImmutableList;
 import org.forgerock.json.JsonValue;
 import org.forgerock.openam.annotations.sm.Attribute;
@@ -66,18 +65,18 @@ public class CookiePresenceDecisionNode implements Node {
     public Action process(TreeContext context) throws NodeProcessException {
 	
 	//Pull cookies out of headers
-	List<String> cookies = context.headers.get("Cookie");
+	Map<String, String> cookies = context.request.cookies;
 	logger.info("CookiePresenceCheckNode cookies found: " + cookies);
 
 	//If no cookies present at all        
-	if (cookies.size() != 1) {
+	if (cookies.isEmpty()) {
 	
 		logger.info("CookiePresenceCheckNode no cookies found");
                 return goTo(false).build();
         }
 
 	//Take first entry of [] to make string and see if specified cookie name exists...
-	if(cookies.get(0).contains(config.cookieName())){
+	if(cookies.containsKey(config.cookieName())) {
        		
 		logger.info("CookiePresenceCheckNode cookie called " + config.cookieName() + " found!");
 		return goTo(true).build();
